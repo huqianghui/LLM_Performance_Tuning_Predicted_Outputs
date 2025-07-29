@@ -1,0 +1,5 @@
+python-dotenv~=1.0.1
+openai~=1.97.1
+azure-ai-inference~=1.0.0b8
+azure-identity~=1.19.0
+aiohttp~=3.11.11

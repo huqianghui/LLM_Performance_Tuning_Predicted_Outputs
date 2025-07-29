@@ -76,20 +76,135 @@ Azure OpenAI's predicted-outputs feature, introduced in API version `2025-01-01-
 - **Unsupported Parameters**: Does not support `n` > 1, `logprobs`, `presence_penalty` > 0, `frequency_penalty` > 0, `audio`, `max_completion_tokens`, or tools/function calling.
 - **Regional Availability**: Unavailable in South East Asia.
 
+### Cost Calculation Example
+
+Understanding the billing mechanism for predicted-outputs is crucial for cost optimization. Here's a detailed example based on Azure OpenAI documentation:
+
+**Example API Response Usage Data:**
+```json
+"usage": {
+  "completion_tokens": 77,
+  "prompt_tokens": 124,
+  "total_tokens": 201,
+  "completion_tokens_details": {
+    "accepted_prediction_tokens": 6,
+    "audio_tokens": 0,
+    "reasoning_tokens": 0,
+    "rejected_prediction_tokens": 4
+  }
+}
+```
+
+**Billing Calculation:**
+- **Completion tokens**: 77 (includes 6 accepted prediction tokens)
+- **Rejected prediction tokens**: 4 (billed separately at completion token rates)
+- **Total billed tokens**: 77 + 4 = **81 tokens**
+
+**Key Points:**
+1. **No cost deduction** for accepted prediction tokens (they're included in completion_tokens)
+2. **Additional charges** apply for rejected prediction tokens 
+3. **Acceptance ratio** is critical: Higher acceptance rates = better cost efficiency
+4. **Performance benefits**: Despite no cost reduction for accepted tokens, significant latency improvements (up to 30% throughput improvement) result from speculative processing
+
+**Cost-Benefit Analysis:**
+- **Latency**: Substantial improvements due to speculative decoding
+- **Throughput**: ~30% improvement leading to better GPU efficiency
+- **Cost**: Evaluate acceptance rate (6 accepted vs 4 rejected = 60% acceptance) to determine ROI
+
+**Recommendation**: Monitor your acceptance rates closely. High acceptance rates (>70%) typically justify the additional costs through performance gains.
+
+### Advanced Configuration
+
+#### Predictor Search Length Parameter
+Azure OpenAI provides an additional parameter `x-ms-oai-ev3-predictor_search_length` to control the predictor search length for predicted-outputs optimization. This parameter is used in the underlying Speculative Decoding mechanism to define the number of tokens in the sampling space to search for reconvergence when transitioning between generative and speculation modes.
+
+**Supported Values:**
+- `1`, `2`, `4`, `8`, `16`, and `32` (default)
+
+**Technical Details:**
+- **Default Value**: 32 tokens
+- **Purpose**: Controls the search window for token reconvergence in speculative decoding
+- **Performance Impact**: Lower values (even as low as 1) can provide significant gains in decoding time per token
+- **Trade-off**: Balance between search thoroughness and decoding speed
+
+**Usage Guidelines:**
+- Start with lower values (1-4) for maximum speed optimization
+- Use higher values (16-32) when prediction accuracy is more important than speed
+- Test different values to find the optimal balance for your specific use case
+
+**How it Works:**
+The parameter determines how many tokens the model examines when deciding whether to reconverge from generative mode back to speculation mode during the predicted-outputs process. A smaller search length means faster decisions but potentially less optimal reconvergence points.
+
 ### Example Usage
-Below is a pseudocode example of using predicted-outputs in Azure OpenAI:
+Below are examples of using predicted-outputs in Azure OpenAI with different predictor search length configurations:
+
 ```python
 import openai
 
 openai.api_key = "your_api_key"
 openai.api_base = "your_api_base"
 
-response = openai.ChatCompletion.create(
+# Example 1: Maximum speed optimization (minimal search length)
+response_fast = openai.ChatCompletion.create(
     engine="your_deployment_name",
     messages=[{"role": "user", "content": "Complete this code: def hello_world(): print("}],
     prediction="Hello, World!")",
+    headers={
+        "x-ms-oai-ev3-predictor_search_length": "1"  # Fastest decoding
+    }
 )
-print(response.choices[0].message.content)
+
+# Example 2: Balanced approach
+response_balanced = openai.ChatCompletion.create(
+    engine="your_deployment_name",
+    messages=[{"role": "user", "content": "Complete this code: def hello_world(): print("}],
+    prediction="Hello, World!")",
+    headers={
+        "x-ms-oai-ev3-predictor_search_length": "8"  # Balance between speed and accuracy
+    }
+)
+
+# Example 3: Default behavior (can be omitted)
+response_default = openai.ChatCompletion.create(
+    engine="your_deployment_name",
+    messages=[{"role": "user", "content": "Complete this code: def hello_world(): print("}],
+    prediction="Hello, World!")",
+    headers={
+        "x-ms-oai-ev3-predictor_search_length": "32"  # Default value
+    }
+)
+```
+
+**Alternative using requests library:**
+```python
+import requests
+
+# Configuration for maximum speed
+headers_fast = {
+    "Content-Type": "application/json",
+    "api-key": "your_api_key",
+    "x-ms-oai-ev3-predictor_search_length": "1"  # Fastest option
+}
+
+data = {
+    "messages": [{"role": "user", "content": "Complete this code: def hello_world(): print("}],
+    "prediction": "Hello, World!")"
+}
+
+response = requests.post(
+    "https://your-endpoint.openai.azure.com/openai/deployments/your-deployment/chat/completions?api-version=2025-01-01-preview",
+    headers=headers_fast,
+    json=data
+)
+```
+
+**Performance Comparison Table:**
+| Search Length | Speed | Accuracy | Use Case |
+|---------------|-------|----------|----------|
+| 1 | Fastest | Good | Real-time applications, chat |
+| 2-4 | Very Fast | Good | Interactive applications |
+| 8-16 | Fast | Better | Balanced performance |
+| 32 (default) | Standard | Best | High-accuracy requirements |
 ```
 **Note**: Requires an Azure OpenAI API key and is subject to their terms of service.
 
