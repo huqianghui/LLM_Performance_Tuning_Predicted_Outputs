@@ -135,6 +135,8 @@ Understanding the billing mechanism for predicted-outputs is crucial for cost op
 
 Azure OpenAI provides an additional parameter `x-ms-oai-ev3-predictor_search_length` to control the predictor search length for predicted-outputs optimization. This parameter is used in the underlying Speculative Decoding mechanism to define the number of tokens in the sampling space to search for reconvergence when transitioning between generative and speculation modes.
 
+![verify_in_parallel](./images/verify_in_parallel.png)
+
 **Supported Values:**
 
 - `1`, `2`, `4`, `8`, `16`, and `32` (default)
