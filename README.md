@@ -70,6 +70,8 @@ Azure OpenAI's predicted-outputs feature, introduced in API version `2025-01-01-
 - **Reduced Latency**: Focuses on new/modified sections, speeding up responses.
 - **Context Preservation**: Maintains tone, style, and content coherence.
 
+![main_run_result](./images/main_run_result.png)
+
 ### Limitations
 - **Cost**: Rejected prediction tokens are billed at completion token rates.
 - **Text-Only**: Supports only text modalities.
@@ -172,29 +174,6 @@ response_default = openai.ChatCompletion.create(
     headers={
         "x-ms-oai-ev3-predictor_search_length": "32"  # Default value
     }
-)
-```
-
-**Alternative using requests library:**
-```python
-import requests
-
-# Configuration for maximum speed
-headers_fast = {
-    "Content-Type": "application/json",
-    "api-key": "your_api_key",
-    "x-ms-oai-ev3-predictor_search_length": "1"  # Fastest option
-}
-
-data = {
-    "messages": [{"role": "user", "content": "Complete this code: def hello_world(): print("}],
-    "prediction": "Hello, World!")"
-}
-
-response = requests.post(
-    "https://your-endpoint.openai.azure.com/openai/deployments/your-deployment/chat/completions?api-version=2025-01-01-preview",
-    headers=headers_fast,
-    json=data
 )
 ```
 

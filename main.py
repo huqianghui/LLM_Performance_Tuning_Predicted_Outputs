@@ -33,9 +33,6 @@ completion = client.chat.completions.with_raw_response.create(
     stop=None,
     stream=False
 )
-
-# print(completion.to_json())
-# print(completion.choices[0].message.content)
 print(completion)
 print(completion.text)
 print(completion.headers)
