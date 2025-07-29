@@ -50,6 +50,11 @@ Prompt caching is particularly effective for:
 ### What is Predicted-Outputs?
 Azure OpenAI's predicted-outputs feature, introduced in API version `2025-01-01-preview`, reduces latency in chat completions by leveraging pre-known text provided via the `prediction` parameter. This allows the model to focus on generating new or modified content, making it ideal for:
 - Regenerating or refining documents (e.g., legal contracts, technical documents).
+  
+  reference extract relevant passages usecase data:
+
+  ![extract_relevant_passages_test_result](./images/extract_relevant_passages_test_result.png)
+
 - Auto-completion in IDEs for boilerplate code.
 - Completing templates (e.g., personalized emails, reports).
 - Dialog turns in chatbots (e.g., customer service).
@@ -122,6 +127,22 @@ Azure OpenAI provides an additional parameter `x-ms-oai-ev3-predictor_search_len
 
 **Supported Values:**
 - `1`, `2`, `4`, `8`, `16`, and `32` (default)
+
+main: {x-ms-oai-ev3-predictor_search_length:1}
+![predictor_search_length-1](./images/benchmark/main-x-ms-oai-ev3-predictor_search_length-1.png)
+main: {x-ms-oai-ev3-predictor_search_length:2}
+![predictor_search_length-2](./images/benchmark/main-x-ms-oai-ev3-predictor_search_length-2.png)
+main: {x-ms-oai-ev3-predictor_search_length:4}
+![predictor_search_length-1](./images/benchmark/main-x-ms-oai-ev3-predictor_search_length-4.png)
+main: {x-ms-oai-ev3-predictor_search_length:8}
+![predictor_search_length-1](./images/benchmark/main-x-ms-oai-ev3-predictor_search_length-8.png)
+main: {x-ms-oai-ev3-predictor_search_length:16}
+![predictor_search_length-1](./images/benchmark/main-x-ms-oai-ev3-predictor_search_length-16.png)
+main: {x-ms-oai-ev3-predictor_search_length:32}
+![predictor_search_length-1](./images/benchmark/main-x-ms-oai-ev3-predictor_search_length-32.png)
+
+main: without x-ms-oai-ev3-predictor_search_length header parameter
+![main-without-x-ms-oai-ev3-predictor_search_length](./images/benchmark/main-without-x-ms-oai-ev3-predictor_search_length.png)
 
 **Technical Details:**
 - **Default Value**: 32 tokens
