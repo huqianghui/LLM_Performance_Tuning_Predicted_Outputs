@@ -268,6 +268,8 @@ response_default = openai.ChatCompletion.create(
 
 Speculative decoding is a technique to accelerate inference in autoregressive models (e.g., transformers) without altering output quality. Introduced in the paper "Fast Inference from Transformers via Speculative Decoding" ([arXiv:2211.17192](https://arxiv.org/abs/2211.17192)), it uses a smaller, faster assistant model to generate candidate tokens, which are verified by a larger main model in a single forward pass.
 
+![speculative_decdoding_history](./images/speculative_decdoding_history.png)
+
 ### Relationship to Predicted-Outputs
 
 Speculative decoding shares conceptual similarities with predicted-outputs:
