@@ -3,7 +3,7 @@ import base64
 from openai import AzureOpenAI
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
       
-endpoint = os.getenv("ENDPOINT_URL", "https://<REPLACE_ENDPOINT_NAME>.openai.azure.com/")
+endpoint = os.getenv("ENDPOINT_URL")
 deployment = os.getenv("DEPLOYMENT_NAME", "gpt-4.1-mini")
       
 # Initialize Azure OpenAI client with Entra ID authentication
@@ -14,7 +14,7 @@ token_provider = get_bearer_token_provider(
 
 client = AzureOpenAI(
     azure_endpoint=endpoint,
-    azure_ad_token_provider=token_provider,
+    api_key=os.getenv("ENDPOINT_KEY"),
     api_version="2025-01-01-preview",
     default_headers={"x-ms-oai-ev3-predictor_search_length": "4"}
 )
